@@ -7,32 +7,25 @@ namespace ScrumWorks\EnumMapping;
 use InvalidArgumentException;
 use UnitEnum;
 
-/**
- * @template TUnitEnum of UnitEnum
- * @template TMappingValue of int|string
- */
 final class EnumMappingMemoryStorage
 {
     /**
-     * @var array<string, TMappingValue>
+     * @var array<string, int|string>
      */
     private array $fromEnum = [];
 
     /**
-     * @var array<TMappingValue, TUnitEnum>
+     * @var array<int|string, UnitEnum>
      */
     private array $toEnum = [];
 
     /**
-     * @param class-string<TUnitEnum> $enumClassName
+     * @param class-string<UnitEnum> $enumClassName
      */
-    public function __construct(private readonly string $enumClassName)
+    public function __construct(public readonly string $enumClassName)
     {
     }
 
-    /**
-     * @param TUnitEnum $enum
-     */
     public function enumMappingExists(UnitEnum $enum): bool
     {
         \assert($enum::class === $this->enumClassName);
@@ -41,8 +34,7 @@ final class EnumMappingMemoryStorage
     }
 
     /**
-     * @param TUnitEnum $enum
-     * @return TMappingValue
+     * @return int|string
      */
     public function enumToMappingValue(UnitEnum $enum): mixed
     {
@@ -54,7 +46,7 @@ final class EnumMappingMemoryStorage
     }
 
     /**
-     * @param TMappingValue $mappingValue
+     * @param int|string $mappingValue
      */
     public function mappingValueExists(mixed $mappingValue): bool
     {
@@ -62,8 +54,7 @@ final class EnumMappingMemoryStorage
     }
 
     /**
-     * @param TMappingValue $mappingValue
-     * @return TUnitEnum
+     * @param int|string $mappingValue
      */
     public function mappingValueToEnum(mixed $mappingValue): UnitEnum
     {
@@ -72,7 +63,7 @@ final class EnumMappingMemoryStorage
     }
 
     /**
-     * @return TMappingValue[]
+     * @return array<int|string>
      */
     public function getAllMappingValues(): array
     {
@@ -80,8 +71,7 @@ final class EnumMappingMemoryStorage
     }
 
     /**
-     * @param TUnitEnum $enum
-     * @param TMappingValue $mappingValue
+     * @param int|string $mappingValue
      */
     public function storeMapping(UnitEnum $enum, mixed $mappingValue): void
     {

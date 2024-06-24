@@ -4,19 +4,15 @@ namespace ScrumWorks\EnumMapping;
 
 use UnitEnum;
 
-/**
- * @template TEnumMapping of AbstractEnumMapping
- * @template TUnitEnum of UnitEnum
- */
 final readonly class EnumMappingProvider
 {
     /**
-     * @var array<class-string<TEnumMapping<TUnitEnum>>, TEnumMapping<TUnitEnum>>
+     * @var array<class-string<AbstractEnumMapping>, AbstractEnumMapping>
      */
     private array $enumMappings;
 
     /**
-     * @param array<TEnumMapping<TUnitEnum>> $enumMappings
+     * @param array<AbstractEnumMapping> $enumMappings
      */
     public function __construct(array $enumMappings)
     {
@@ -27,12 +23,19 @@ final readonly class EnumMappingProvider
     }
 
     /**
-     * @param class-string<TEnumMapping<TUnitEnum>> $className
+     * @template TEnumMapping of AbstractEnumMapping
+     * @param class-string<TEnumMapping> $className
      *
-     * @return TEnumMapping<TUnitEnum>
+     * @return TEnumMapping
      */
-    public function get(string $className): AbstractEnumMapping
+    public function get(string $className): ?AbstractEnumMapping
     {
-        return $this->enumMappings[$className];
+        if (! \array_key_exists($className, $this->enumMappings)) {
+            return null;
+        }
+        $instance = $this->enumMappings[$className];
+        \assert($instance instanceof $className);
+
+        return $instance;
     }
 }
