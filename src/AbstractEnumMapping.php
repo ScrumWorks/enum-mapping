@@ -15,26 +15,22 @@ use ScrumWorks\EnumMapping\Strategy\EnumMappingSame;
 use ScrumWorks\EnumMapping\Strategy\EnumMappingValue;
 use UnitEnum;
 
-/**
- * @template TUnitEnum of UnitEnum
- */
 abstract class AbstractEnumMapping
 {
     /**
-     * @var array<class-string<TUnitEnum>, EnumMappingMemoryStorage<TUnitEnum, int|string>>
+     * @var array<class-string<UnitEnum>, EnumMappingMemoryStorage>
      */
     private array $mappings = [];
 
-    /**
-     * @param TUnitEnum $enum
-     */
     public function enumMappingExists(UnitEnum $enum): bool
     {
         return $this->getMappingStorage($enum::class)->enumMappingExists($enum);
     }
 
     /**
+     * @template TUnitEnum of UnitEnum
      * @param class-string<TUnitEnum> $enumClass
+     *
      * @return TUnitEnum|null
      */
     public function tryStringToEnum(string $enumClass, string $mappingValue): ?UnitEnum
@@ -44,27 +40,30 @@ abstract class AbstractEnumMapping
         if (! $mappingStorage->mappingValueExists($mappingValue)) {
             return null;
         }
-        $mappingValue = $mappingStorage->mappingValueToEnum($mappingValue);
+        $enum = $mappingStorage->mappingValueToEnum($mappingValue);
+        \assert($enum instanceof $enumClass);
 
-        return $mappingValue;
+        return $enum;
     }
 
     /**
+     * @template TUnitEnum of UnitEnum
      * @param class-string<TUnitEnum> $enumClass
-     * @throws UnexpectedEnumMappingValueException
+     *
      * @return TUnitEnum
+     * @throws UnexpectedEnumMappingValueException
      */
     public function stringToEnum(string $enumClass, string $mappingValue): UnitEnum
     {
-        return $this->tryStringToEnum($enumClass, $mappingValue)
+        $enum = $this->tryStringToEnum($enumClass, $mappingValue)
             ?? throw new UnexpectedEnumMappingValueException(
                 "{$enumClass}: `{$mappingValue}` not found",
             );
+        \assert($enum instanceof $enumClass);
+
+        return $enum;
     }
 
-    /**
-     * @param TUnitEnum $enum
-     */
     public function enumToString(UnitEnum $enum): string
     {
         try {
@@ -82,8 +81,13 @@ abstract class AbstractEnumMapping
         }
     }
 
+    public function tryEnumToString(UnitEnum $enum): ?string
+    {
+        return $this->enumMappingExists($enum) ? $this->enumToString($enum) : null;
+    }
+
     /**
-     * @param TUnitEnum[] $enums
+     * @param UnitEnum[] $enums
      * @return string[]
      */
     public function enumsToStrings(array $enums): array
@@ -92,7 +96,7 @@ abstract class AbstractEnumMapping
     }
 
     /**
-     * @param class-string<TUnitEnum> $enumClass
+     * @param class-string<UnitEnum> $enumClass
      * @return string[]|int[]
      */
     public function getValues(string $enumClass): array
@@ -102,9 +106,10 @@ abstract class AbstractEnumMapping
 
     /**
      * Replaces keys of given array according to enum mapping
-     * @param class-string<TUnitEnum&BackedEnum> $enumClass
-     * @param array<string|int, BackedEnum> $arr
-     * @return array<int|string, BackedEnum>
+     * @template TValue
+     * @param class-string<BackedEnum> $enumClass
+     * @param array<string|int, TValue> $arr
+     * @return array<int|string, TValue>
      */
     public function remapKeys(string $enumClass, array $arr): array
     {
@@ -125,8 +130,7 @@ abstract class AbstractEnumMapping
     }
 
     /**
-     * @param class-string<TUnitEnum> $enumClass
-     * @return EnumMappingMemoryStorage<TUnitEnum, int|string>
+     * @param class-string<UnitEnum> $enumClass
      */
     private function getMappingStorage(string $enumClass): EnumMappingMemoryStorage
     {
@@ -136,8 +140,7 @@ abstract class AbstractEnumMapping
     }
 
     /**
-     * @param class-string<TUnitEnum> $enumClass
-     * @return EnumMappingMemoryStorage<TUnitEnum, int|string>
+     * @param class-string<UnitEnum> $enumClass
      */
     private function createMappingStorage(string $enumClass): EnumMappingMemoryStorage
     {
@@ -148,7 +151,7 @@ abstract class AbstractEnumMapping
                 continue;
             }
 
-            /** @var TUnitEnum $enum */
+            /** @var UnitEnum $enum */
             $enum = $enumReflection->getCase($caseReflection->getName())->getValue();
 
             $attrReflections = $caseReflection->getAttributes();

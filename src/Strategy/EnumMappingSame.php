@@ -13,7 +13,7 @@ use ScrumWorks\EnumMapping\EnumMappingInterface;
  * @implements EnumMappingInterface<T>
  */
 #[Attribute(Attribute::TARGET_CLASS_CONSTANT | Attribute::IS_REPEATABLE)]
-final readonly class EnumMappingSame implements EnumMappingInterface
+readonly class EnumMappingSame implements EnumMappingInterface
 {
     /**
      * @param class-string<T> $type
