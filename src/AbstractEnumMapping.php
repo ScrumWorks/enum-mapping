@@ -110,8 +110,17 @@ abstract class AbstractEnumMapping
     {
         $mappingStorage = $this->getMappingStorage($enumClass);
 
+        $isEnumOfTypeString = $this->isEnumOfTypeString($enumClass);
+
         $remapped = [];
         foreach ($arr as $k => $v) {
+            // we need to always cast keys to string if we want to create enum with string type.
+            // this is because array's keys with numeric string type converted to int in PHP
+            // ref. https://stackoverflow.com/a/4100765 and https://www.php.net/manual/en/language.types.array.php
+            if ($isEnumOfTypeString) {
+                $k = (string) $k;
+            }
+
             $enum = $enumClass::tryFrom($k)
                 ?? throw new InvalidArgumentException(
                     "Key ({$k}) isn't backed value of enum ({$enumClass})"
@@ -122,6 +131,16 @@ abstract class AbstractEnumMapping
         }
 
         return $remapped;
+    }
+
+    /**
+     * @param class-string<BackedEnum> $enumClass
+     */
+    private function isEnumOfTypeString(string $enumClass): bool
+    {
+        $reflectionEnum = new ReflectionEnum($enumClass);
+
+        return $reflectionEnum->isBacked() && $reflectionEnum->getBackingType()->getName() === 'string';
     }
 
     /**
