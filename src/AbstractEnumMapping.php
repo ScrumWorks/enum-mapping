@@ -138,6 +138,15 @@ abstract class AbstractEnumMapping
         return $remapped;
     }
 
+    public function nullableEnumToString(?UnitEnum $enum): ?string
+    {
+        if ($enum === null) {
+            return null;
+        }
+
+        return $this->enumToString($enum);
+    }
+
     /**
      * @param class-string<BackedEnum> $enumClass
      */
