@@ -175,11 +175,6 @@ abstract class AbstractEnumMapping
         $mappingStorage = new EnumMappingMemoryStorage($enumClass);
         $enumReflection = new ReflectionEnum($enumClass);
         foreach ($enumReflection->getCases() as $caseReflection) {
-            if (! $caseReflection instanceof ReflectionEnumUnitCase) {
-                continue;
-            }
-
-            /** @var UnitEnum $enum */
             $enum = $enumReflection->getCase($caseReflection->getName())->getValue();
 
             $attrReflections = $caseReflection->getAttributes();
